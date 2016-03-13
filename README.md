@@ -7,7 +7,7 @@ http://www.amazon.co.uk/Polished-Game-Development-First-Release/dp/1484218787
 
 Simply visit:
 
-marquisdegeek.com/spacebounce
+https://marquisdegeek.com/spacebounce
 
 # To Develop
 
