@@ -30,8 +30,11 @@ var designInfo;
 var interfaceList = [];
 var animStatePlayer;
 var animStateHalite;
+var overlayEffect;
 
 	(function ctor() {
+		overlayEffect = new GameStyleEffect();
+
 		animStatePlayer = sgx.graphics.AnimationManager.get().createState();
 		animStatePlayer.setAnimationDataSet(gVars.animations.player);
 
@@ -203,9 +206,13 @@ var animStateHalite;
 			surface.setFillTexture(gVars.textures.halite, cell);
 			surface.fillPoint(176 + x, 366);
 		}
+		//
+		overlayEffect.draw(surface);	
 	}
 	
 	function update(surface, telaps) {
+
+		overlayEffect.update(surface, telaps);
 
 		animStateHalite.update(telaps);
 

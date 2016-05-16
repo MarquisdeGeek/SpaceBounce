@@ -68,9 +68,12 @@ var currentState;
 var newState;
 var newStateFadeTimecum;
 var newStateFadeOut;
+var overlayEffect;
 
 	(function ctor() {
 		sgxSetRandSeed(23063007);
+
+		overlayEffect = new GameStyleEffect();
 
 		stateList = { 
 			'titles': 	new GameTitlePages(changeState), 
@@ -90,7 +93,6 @@ var newStateFadeOut;
 		newStateFadeOut = true;
 	}
 	
-
 	function draw(surface) {
 		var rt = false;
 		if (currentState && currentState.draw) {
@@ -107,7 +109,9 @@ var newStateFadeOut;
 			surface.setFillColor(color);
 			surface.setFillTexture(gVars.textures.backgroundShaft);
 			surface.fillRect();
-		}		
+		}	
+
+		overlayEffect.draw(surface);	
 		//
 		return rt;
 	}
@@ -116,6 +120,8 @@ var newStateFadeOut;
 	// is now trivial, because the data is sitting there waiting. Furthermore, since
 	// all effects have a time-element, this is a no-brainer.
 	function update(surface, telaps) {
+		overlayEffect.update(surface, telaps);
+
 		if (newState) {
 			newStateFadeTimecum += telaps * gVars.tFadeIntraMenu;
 			if (newStateFadeTimecum > 1.0) {

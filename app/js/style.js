@@ -204,3 +204,37 @@ GameStyle.drawText = function(surface, style, value, x, y) {
 GameStyle.createStyledText = function(style, value) {
 	return new GameStyleText(style, value);
 }
+
+
+
+function GameStyleEffect() {
+var color;
+var timecum;
+
+	(function ctor() {
+		color = new sgxColorRGBA(1, 1, 1, 0.9);
+		timecum = 0;
+	})();
+	
+	function update(surface, telaps) {
+		timecum += telaps * 0.05;
+		if (timecum > 1) {
+			timecum -= 1;
+		}
+	}
+	
+	function draw(surface) {
+		var height = surface.getHeight();
+
+		surface.setFillTexture(gVars.textures.overlay);
+		surface.setFillColor(color);
+		surface.fillPoint(0, timecum * height, sgx.graphics.DrawSurface.eFromTopLeft);
+		surface.fillPoint(0, timecum * height, sgx.graphics.DrawSurface.eFromBottomLeft);
+		
+	}
+
+	return {
+		draw: function(surface)				{ draw(surface); },
+		update: function(surface, telaps) 	{ update(surface, telaps); }
+	};
+}

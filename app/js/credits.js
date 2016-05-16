@@ -21,8 +21,11 @@ var	creditsUI;
 var	creditsScreen;
 var animState;
 var animPlayerY;
+var overlayEffect;
 
 	(function ctor() {
+		overlayEffect = new GameStyleEffect();
+
 		creditsUI = sgxutils.gui.DesignManager.load("resources/credits/ui", function(design, success) {
 			creditsScreen = design.getScreen(0).applyScreen();
 			sgx.filesystem.Engine.get().blockingCompletedElement(design, success);
@@ -46,9 +49,13 @@ var animPlayerY;
 		var cell = animState.getCurrentCell();
 		surface.setFillTexture(gVars.textures.player, cell);
 		surface.fillPoint(265, animPlayerY, sgx.graphics.DrawSurface.eFromTopLeft);
+
+		overlayEffect.draw(surface);	
 	}
 	
 	function update(surface, telaps) {
+		overlayEffect.update(surface, telaps);
+
 		animState.update(telaps);
 		if (--animPlayerY < -gVars.textures.player.getRegionHeight(0)) {
 			animPlayerY = 480;
