@@ -31,9 +31,17 @@ gVars.tPreGameWait = 1.53;
 gVars.tPostGameWait = 0.6;
 gVars.tFadeToGameOver = 1.6;
 gVars.tFadeToNextLevel = 3;
+gVars.bUseFade = true;
 
 gVars.tMusicFadeOut = 0.4;
 
 gVars.textures = {};
 gVars.animations = {};
 
+
+gVars.socket = io();
+
+// example usage:
+ gVars.socket.on('arduino::state', function(msg){
+    var data = JSON.parse(msg);
+});

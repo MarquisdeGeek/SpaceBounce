@@ -37,6 +37,7 @@ var interfaceGame;
 var interfaceIGM;
 var igmResumeState;
 var musicChannel;
+var bHasJumped;
 
 	(function ctor() {
 		ui = {};
@@ -104,7 +105,27 @@ var musicChannel;
 		
 		ui.score = GameStyle.createStyledText('score');
 		ui.health = GameStyle.createStyledText('health');
+		//
+		bHasJumped = false;
+		//
+	     gVars.socket.on('arduino::state', function(msg){
+	        var data = JSON.parse(msg);
+	        if (data.side === 'left' && data.state == 'up') {
+				bHasJumped = true;
+	        } else if (data.side === 'right' && data.state == 'up') {
+				bHasJumped = true;
+	        }
+		});
+
 	})();
+
+	function hasJumped() {
+		return bHasJumped;
+	}
+
+	function hasJumpedPostUpdate() {
+		bHasJumped = false;
+	}
 
 	function startGame(surface) {
 		data = {level: 0};
@@ -231,10 +252,13 @@ var musicChannel;
 	}
 
 	function drawScreenFadeOut(surface, alpha) {
-		var color = new sgxColorRGBA(0,0,0, alpha);
-		surface.setFillColor(color);
-		surface.setFillTexture(gVars.textures.backgroundShaft);
-		surface.fillRect();
+		if (gVars.bUseFade)
+		{
+			var color = new sgxColorRGBA(0,0,0, alpha);
+			surface.setFillColor(color);
+			surface.setFillTexture(gVars.textures.backgroundShaft);
+			surface.fillRect();
+		}
 	}
 
 	function drawNextLevel(surface, t) {
@@ -357,14 +381,14 @@ var musicChannel;
 			break;
 
 			case GAME_IS_PREPARING_NEXT_LEVEL:
-			if (sgx.input.Engine.get().mouseLeft.wasPressed() || sgx.input.Engine.get().isAnyKeyPressed()) {
+			if (hasJumped() || sgx.input.Engine.get().mouseLeft.wasPressed() || sgx.input.Engine.get().isAnyKeyPressed()) {
 				nextLevel();
 			} else if (substateTimecum > gVars.tFadeToNextLevel) {	
 				setSubstate(GAME_IS_WAITING_FOR_NEXT_LEVEL);
 			}
 			break;
 			case GAME_IS_WAITING_FOR_NEXT_LEVEL:
-			if (sgx.input.Engine.get().mouseLeft.wasPressed() || sgx.input.Engine.get().isAnyKeyPressed()) {
+			if (hasJumped() || sgx.input.Engine.get().mouseLeft.wasPressed() || sgx.input.Engine.get().isAnyKeyPressed()) {
 				nextLevel();
 			}
 			break;
@@ -376,18 +400,20 @@ var musicChannel;
 			}
 			break;
 			case GAME_IS_DOING_GAME_OVER_ANIM:
-			if (sgx.input.Engine.get().mouseLeft.wasPressed() || sgx.input.Engine.get().isAnyKeyPressed()) {
+			if (hasJumped() || sgx.input.Engine.get().mouseLeft.wasPressed() || sgx.input.Engine.get().isAnyKeyPressed()) {
 				changeState('mainmenu');
 			} else if (substateTimecum > 1) {
 				setSubstate(GAME_IS_AWAITING_RESTART);
 			}
 			break;
 			case GAME_IS_AWAITING_RESTART:
-			if (sgx.input.Engine.get().mouseLeft.wasPressed() || sgx.input.Engine.get().isAnyKeyPressed()) {
+			if (hasJumped() || sgx.input.Engine.get().mouseLeft.wasPressed() || sgx.input.Engine.get().isAnyKeyPressed()) {
 				changeState('mainmenu');
 			}
 			break;
 		}
+		//
+		hasJumpedPostUpdate();
 	}
 	
 

@@ -2,7 +2,7 @@
 
 SPACE BOUNCE
 
-Copyright 2015-2016.
+Copyright 2015-2019.
 Steven Goodwin. 
 
 This file is released under the GNU General Public License Version 3.
@@ -24,7 +24,23 @@ function startGame() {
 	sgx.main.System.initialize();	// optionally pass the 'loading_screen' ID here, to hide the contents once loaded
 
 	gVars.mainSurface = sgx.graphics.DrawSurfaceManager.get().getDisplaySurface();
-	
+
+	$( document ).ready(function() {
+	    var isMobile = window.matchMedia("only screen and (max-width: 760px)");
+
+	    if (isMobile.matches) {
+	        gVars.bUseFade = false;
+	    }
+	 });
+
+	if (!gVars.bUseFade)
+	{
+		gVars.tFadeIntraMenu =
+		gVars.tFadeToMenu =
+		gVars.tFadeToGameOver =
+		gVars.tFadeToNextLevel = 0.0001;
+	}
+
 	writeLoadingProcess('loading_tracker', 5);	// MainSettings.loadingProgressSize
 	sgx.text.processTextData(gLanguageData);
 	
@@ -98,7 +114,7 @@ var overlayEffect;
 		if (currentState && currentState.draw) {
 			rt = currentState.draw(surface);
 		}
-		if (newState) {
+		if (newState && gVars.bUseFade) {
 			var color = new sgxColorRGBA(1,1,1,/*alpha=*/1);
 			if (newStateFadeOut) {
 				color.a = sgxMin(1, newStateFadeTimecum);
@@ -123,25 +139,36 @@ var overlayEffect;
 		overlayEffect.update(surface, telaps);
 
 		if (newState) {
-			newStateFadeTimecum += telaps * gVars.tFadeIntraMenu;
-			if (newStateFadeTimecum > 1.0) {
-				if (newStateFadeOut) {	// finished fade out
-					newStateFadeOut = false;
-					newStateFadeTimecum = 0;
-					//
-					currentState = stateList[newState];	// We fail hard and fast. If this state doesn't exist, there's an exception immediately to follow
-					if (currentState.start) {
-						currentState.start();
-					} else {
-						// NOP
-					}		
+			if (gVars.bUseFade)
+			{
+				newStateFadeTimecum += telaps * gVars.tFadeIntraMenu;
+				if (newStateFadeTimecum > 1.0) {
+					if (newStateFadeOut) {	// finished fade out
+						newStateFadeOut = false;
+						newStateFadeTimecum = 0;
+						//
+						currentState = stateList[newState];	// We fail hard and fast. If this state doesn't exist, there's an exception immediately to follow
+						if (currentState.start) {
+							currentState.start();
+						} else {
+							// NOP
+						}
 
-				} else {		// finished fade in
-					newState = undefined;
+					} else {		// finished fade in
+						newState = undefined;
+					}
+
+				} else {	// still fading in, or out, so no updates are allowed
+					return;
 				}
-
-			} else {	// still fading in, or out, so no updates are allowed
-				return;
+			}
+			else	// !gVars.bUseFade
+			{
+				currentState = stateList[newState];	// We fail hard and fast. If this state doesn't exist, there's an exception immediately to follow
+				if (currentState.start) {
+					currentState.start();
+				}
+				newState = undefined;
 			}
 		}
 

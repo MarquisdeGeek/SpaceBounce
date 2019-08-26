@@ -12,15 +12,17 @@
 	  _gaq.push(['_trackPageview']);
 
 	  (function() {
-	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 	  })();
 
 	</script>
 </head>
 
 <body>
+	<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+
 	<script type="text/javascript" src="//sgxengine.com/code/lib/js/jquery/jquery-1.11.1.min.js"></script>
 	<script type="text/javascript" src="//sgxengine.com/code/jpjs/jquery.jplayer.min.js"></script>
 
@@ -34,9 +36,9 @@
 
 
 	<!-- BUILD:ENVIRONMENT:START:local -->
-	<script type="text/javascript" src="http://sgxengine.com/code/sgx/sgx-3.1.14.min.js"></script>
+	<script type="text/javascript" src="sgx/sgx/bootstrap.js"></script>
 	<script type="text/javascript">
-	$(document).ready(function() {
+	SGXSystem.include('sgx/sgx.js', function() {
 		startGame();
 	});
 	</script>
@@ -76,5 +78,22 @@
 
 	<div id="sgxAudio"></div>
 
+	<script type="text/javascript">
+		function initFullScreen() {
+			adjustSettings();
+			window.addEventListener('resize', adjustSettings);
+		}
+
+		function adjustSettings() {
+			var rotatedWidth = window.innerHeight;
+			var container = document.getElementById('SGXCanvas');
+			console.log(container);
+			container.style.width = rotatedWidth + 'px';
+			container.style.left = -rotatedWidth + 'px';
+		}
+
+		document.addEventListener('DOMContentLoaded', initFullScreen);
+	</script>
+	
 </body>
 </html>

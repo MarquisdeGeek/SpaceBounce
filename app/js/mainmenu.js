@@ -40,7 +40,40 @@ var transitioning;
 		transitioning = false;
 		sgx.gui.Engine.get().setRootWidget(menuScreen);
 
+		var ms = design.getScreen(0);
+		ms.getWidget(3).hide();
+		ms.getWidget(4).hide();
+
 		setTimeout(function() { sgx.audio.Engine.get().playSound("spacebounce"); }, 500);
+
+	     gVars.socket.on('arduino::state', handleSocket);
+	}
+
+	function handleSocket(msg) {
+        var data = JSON.parse(msg);
+        if (data.side === 'left' && data.state == 'up') {
+			changeTo('game');
+        } else if (data.side === 'right' && data.state == 'up') {
+			changeTo('game');
+        }
+	}
+
+	function changeTo(new_state) {
+		newState = new_state;
+		if (new_state === 'game') {
+			sgx.audio.Engine.get().playSound("startgame");
+		     gVars.socket.off('arduino::state', handleSocket);
+		}
+
+		transitioning = true;
+		musicChannel && musicChannel.startFadeOut(gVars.tMusicFadeOut, function(e) {
+			musicChannel.stop();
+			changeState(newState);
+		});
+		if (!musicChannel) {
+			changeState(newState);
+		}
+
 	}
 
 	function draw(surface) {
@@ -57,6 +90,7 @@ var transitioning;
 	function preparemenuScreen() {		
 
 		menuScreen = design.getScreen(0).applyScreen();
+
 		menuScreen.setHandler({
 		
 			onGUIWidgetPressed: function(widget, position) {
@@ -80,23 +114,14 @@ var transitioning;
 						} else {
 							switch(widget_id) {
 								case 1:
-								newState = 'credits';
+								changeTo('credits');
 								break;
 								case 2:
-								newState = 'instructions';
+								changeTo('instructions');
 								break;
 								case 3:
-								newState = 'game';
-								sgx.audio.Engine.get().playSound("startgame");
+								changeTo('game');
 								break;
-							}
-							transitioning = true;
-							musicChannel && musicChannel.startFadeOut(gVars.tMusicFadeOut, function(e) {
-								musicChannel.stop();
-								changeState(newState);
-							});
-							if (!musicChannel) {
-								changeState(newState);
 							}
 						}
 						break;

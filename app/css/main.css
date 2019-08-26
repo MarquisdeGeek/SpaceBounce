@@ -1,3 +1,13 @@
+
+body,html {
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background-color: #666;
+}
+
 .button.radio {
 	text-decoration: none;	/* no underline on 'a' elements */
 	font-size: 22px;
@@ -11,9 +21,12 @@
 	color: #FEB74B;
 }
 
-#SGXCanvas { 
-	position: absolute; 
-	z-index: 0;
+#SGXCanvas {
+    position: absolute;
+    z-index: 0;
+    transform: rotate(-90deg);
+    transform-origin: top right;
+    width: auto;
 }
 
 #loading_background { 

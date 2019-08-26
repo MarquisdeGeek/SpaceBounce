@@ -31,6 +31,8 @@ function GamePlayer(uiData) {
 	var playerHasExpired; 
 	var ui;
 	var data;
+	var socketAction = { NONE:0, LEFT_UP:1, RIGHT_UP:2}
+	var socketActionRcv;
 
 	(function ctor(uiData) {
 		animStatePlayer = sgx.graphics.AnimationManager.get().createState();
@@ -43,6 +45,16 @@ function GamePlayer(uiData) {
 		animStateClingingRope.setAnimationDataSet(gVars.animations.rope);
 
 		ui = uiData;
+
+		gVars.socket.on('arduino::state', function(msg){
+			var data = JSON.parse(msg);
+			if (data.side === 'left' && data.state == 'up') {
+				socketActionRcv = socketAction.LEFT_UP;
+			} else if (data.side === 'right' && data.state == 'up') {
+				socketActionRcv = socketAction.RIGHT_UP;
+			}
+		});
+
 	})(uiData);
 	
 	function startGame(gameData) {
@@ -54,6 +66,8 @@ function GamePlayer(uiData) {
 	function startLevel(level) {
 		var surface = sgx.graphics.DrawSurfaceManager.get().getDisplaySurface();
 		var screenWidth = surface.getWidth();
+
+		socketActionRcv = socketAction.NONE;
 
 		currentLevel = level;
 
@@ -269,6 +283,13 @@ function GamePlayer(uiData) {
 		} else if (sgx.input.Engine.get().isKeyboardKeyPressed(SGX_KEY_RIGHT)) {
 			moveTo(xRightWall); 
 		}
+		//
+		if (socketActionRcv === socketAction.LEFT_UP) {
+			moveTo(xLeftWall);
+		} else if (socketActionRcv === socketAction.RIGHT_UP) {
+			moveTo(xRightWall); 
+		}
+		socketActionRcv = socketAction.NONE;
 	}
 
 	function pause() {
